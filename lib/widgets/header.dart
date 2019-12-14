@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+
+// Custom header created which can be used accross differnet pages.
+
+AppBar header({bool isAppTitle = false,String titleText}) {
+  return AppBar( 
+    automaticallyImplyLeading: false,
+    title: Text(
+      isAppTitle ?  "Codemmunity" : titleText,
+        style: TextStyle(
+            color: Colors.white,
+            fontFamily: isAppTitle ?  'Signatra' : '',
+            fontSize: isAppTitle ?  35.0 : 20.0,
+            ),
+            ),
+    backgroundColor: Colors.black,
+    centerTitle: true,
+  );
+}
