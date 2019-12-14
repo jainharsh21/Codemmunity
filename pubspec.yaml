@@ -39,6 +39,8 @@ dependencies:
   flutter_svg:
   flutter_spinkit: ^4.1.0
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
