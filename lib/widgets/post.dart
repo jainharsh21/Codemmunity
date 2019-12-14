@@ -6,7 +6,7 @@ import 'package:codemmunity/models/user.dart';
 import 'package:codemmunity/pages/comments.dart';
 import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/widgets/custom_image.dart';
-import 'package:codemmunity/widgets/progress.dart';
+// import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
 
 class Post extends StatefulWidget {
@@ -91,7 +91,7 @@ class _PostState extends State<Post> {
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return circularProgress();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         User user = User.fromDocument(snapshot.data);
         return ListTile(
           leading: CircleAvatar(
@@ -135,32 +135,73 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': false});
+
+      removeLikeFromActivityFeed();
+
       setState(() {
         likeCount -= 1;
         isLiked = false;
-        likes[currentUserId] = false; 
+        likes[currentUserId] = false;
       });
-    }
-    else if(!isLiked){
+    } else if (!isLiked) {
       postsRef
           .document(ownerId)
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': true});
+
+      addLikeToActivityFeed();
+
       setState(() {
         likeCount += 1;
         isLiked = true;
         likes[currentUserId] = true;
         showLikeAnimation = true;
       });
-      Timer(
-        Duration(milliseconds: 500),
-        (){
-          setState(() {
-            showLikeAnimation =false;
-          });
-        }
-      );
+      Timer(Duration(milliseconds: 500), () {
+        setState(() {
+          showLikeAnimation = false;
+        });
+      });
+    }
+  }
+
+  addLikeToActivityFeed() {
+    // add a notification for likes made by other users and not the owner's like notification.
+
+    bool isNotPostOwner = currentUserId != ownerId;
+
+    if (isNotPostOwner) {
+      activityFeedRef
+          .document(ownerId)
+          .collection("feedItems")
+          .document(postId)
+          .setData({
+        "type": "like",
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImage": currentUser.photoUrl,
+        "postId": postId,
+        "mediaUrl": mediaUrl,
+        "timestamp": DateTime.now(),
+      });
+    }
+  }
+
+  removeLikeFromActivityFeed() {
+    bool isNotPostOwner = currentUserId != ownerId;
+
+    if (isNotPostOwner) {
+      activityFeedRef
+          .document(ownerId)
+          .collection("feedItems")
+          .document(postId)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        } 
+      });
     }
   }
 
@@ -171,13 +212,17 @@ class _PostState extends State<Post> {
         alignment: Alignment.center,
         children: <Widget>[
           cachedNetworkImage(mediaUrl),
-          showLikeAnimation ? Icon(Icons.thumb_up,size: 80.0,color: Colors.blue,) : Text(""),
+          showLikeAnimation
+              ? Icon(
+                  Icons.thumb_up,
+                  size: 80.0,
+                  color: Colors.blue,
+                )
+              : Text(""),
         ],
       ),
     );
   }
-
-  
 
   buildPostFooter() {
     return Column(
@@ -201,89 +246,90 @@ class _PostState extends State<Post> {
             ),
             GestureDetector(
               onTap: () => showComments(
-                              context,
-                              postId : postId,
-                              ownerId : ownerId,
-                              mediaUrl : mediaUrl,
-                            ),
-                            child: Icon(
-                              Icons.mode_comment,
-                              size: 28.0,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.only(left: 20.0),
-                            child: Text(
-                              "$likeCount likes",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.only(left: 20.0),
-                            child: Text(
-                              "$username  ",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              caption,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Row(
-                      //   crossAxisAlignment: CrossAxisAlignment.start,
-                      //   children: <Widget>[
-                      //     Container(
-                      //       margin: EdgeInsets.only(left: 20.0),
-                      //       child: Text(timeago.format(timestamp),style: TextStyle(color: Colors.white),),
-                      //     ),
-                      //   ],
-                      // ),
-                    ],
-                  );
-                }
-              
-                @override
-                Widget build(BuildContext context) {
-                  isLiked = (likes[currentUserId]==true);    
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      buildPostHeader(),
-                      buildPostImage(),
-                      buildPostFooter(),
-                    ],
-                  );
-                }
-              
-                showComments(BuildContext context, {String postId, String ownerId, String mediaUrl}) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return Comments(
-                      postId : postId,
-                      postOwnerId : ownerId,
-                      postMediaUrl : mediaUrl,
-                    );
-                  }));
-                }
+                context,
+                postId: postId,
+                ownerId: ownerId,
+                mediaUrl: mediaUrl,
+              ),
+              child: Icon(
+                Icons.mode_comment,
+                size: 28.0,
+                color: Colors.blueGrey,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Text(
+                "$likeCount likes",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20.0),
+              child: Text(
+                "$username  ",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                caption,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        // Row(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: <Widget>[
+        //     Container(
+        //       margin: EdgeInsets.only(left: 20.0),
+        //       child: Text(timeago.format(timestamp),style: TextStyle(color: Colors.white),),
+        //     ),
+        //   ],
+        // ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    isLiked = (likes[currentUserId] == true);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        buildPostHeader(),
+        buildPostImage(),
+        buildPostFooter(),
+      ],
+    );
+  }
+
+  showComments(BuildContext context,
+      {String postId, String ownerId, String mediaUrl}) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Comments(
+        postId: postId,
+        postOwnerId: ownerId,
+        postMediaUrl: mediaUrl,
+      );
+    }));
+  }
 }
