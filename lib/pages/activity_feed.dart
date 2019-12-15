@@ -3,6 +3,8 @@ import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ActivityFeed extends StatefulWidget {
   @override
@@ -17,12 +19,17 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .orderBy("timestamp", descending: true)
         .limit(50)
         .getDocuments();
+    List<ActivityFeedItem> feedItems = [];
 
-    snapshot.documents.forEach((doc) {
-      print("Activity Feed Item : ${doc.data}");
+    snapshot.documents.forEach((doc){
+      feedItems.add(ActivityFeedItem.fromDocument(doc));
     });
 
-    return snapshot.documents;
+    // snapshot.documents.forEach((doc) {
+    //   print("Activity Feed Item : ${doc.data}");
+    // });
+
+    return feedItems;
   }
 
   @override
@@ -40,7 +47,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
                 color: Colors.black,
               );
             }
-            return Text("Activity Feed"); 
+            return ListView(
+              children : snapshot.data,
+            );
           },
         ),
       ),
@@ -48,9 +57,120 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
 }
 
+Widget mediaPreview;
+String activityItemText;
+
 class ActivityFeedItem extends StatelessWidget {
+  final String commentData;
+  final String mediaUrl;
+  final String postId;
+  final Timestamp timestamp;
+  final String type;
+  final String userId;
+  final String userProfileImage;
+  final String username;
+
+  ActivityFeedItem({
+    this.commentData,
+    this.mediaUrl,
+    this.postId,
+    this.timestamp,
+    this.type,
+    this.userId,
+    this.userProfileImage,
+    this.username,
+  });
+
+  factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
+    return ActivityFeedItem(
+      commentData: doc['commentData'],
+      mediaUrl: doc['mediaUrl'],
+      postId: doc['postId'],
+      timestamp: doc['timestamp'],
+      type: doc['type'],
+      userId: doc['userId'],
+      userProfileImage: doc['userProfileImage'],
+      username: doc['username'],
+    );
+  }
+
+  configureMediaPreview() {
+    if (type == "like" || type == "comment") {
+      mediaPreview = GestureDetector(
+        onTap: () => print("showing the post"),
+        child: Container(
+          height: 50.0,
+          width: 50.0,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: CachedNetworkImageProvider(mediaUrl),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      mediaPreview = Text("");
+    }
+
+    if (type == "like") {
+      activityItemText = "liked your post.";
+    } else if (type == "follow") {
+      activityItemText = "started following you.";
+    } else if (type == "comment") {
+      activityItemText = "commented : $commentData";
+    } else {
+      activityItemText = 'Error : Unknownk type $type ';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text('Activity Feed Item');
+    configureMediaPreview();
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2.0),
+      child: Container(
+        child: ListTile(
+          title: GestureDetector(
+            onTap: ()=>print("show user's profile"),
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.white,
+                ),
+                children: [
+                  TextSpan(
+                    text: username,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: ' $activityItemText', 
+                  ),
+                ],
+              ),
+            ),
+          ),
+          leading: CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(userProfileImage),
+          ),
+          subtitle: Text(
+            timeago.format(timestamp.toDate()),
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white54,
+
+            ),
+          ),
+          trailing: mediaPreview,
+        ),
+      ),
+    );
   }
 }
