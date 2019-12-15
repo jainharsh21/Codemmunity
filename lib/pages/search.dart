@@ -69,6 +69,9 @@ class _SearchState extends State<Search> {
             SvgPicture.asset(
               'assets/images/search.svg', 
               height: orientation == Orientation.portrait ? 300.0 : 200.0,
+              placeholderBuilder: (BuildContext context){
+                return circularProgress();
+              }
             ),
             Text(
               "Find Users",

@@ -6,6 +6,7 @@ import 'package:codemmunity/models/user.dart';
 import 'package:codemmunity/pages/comments.dart';
 import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/widgets/custom_image.dart';
+import 'package:codemmunity/widgets/progress.dart';
 // import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
 
@@ -91,7 +92,7 @@ class _PostState extends State<Post> {
     return FutureBuilder(
       future: usersRef.document(ownerId).get(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return circularProgress();
         User user = User.fromDocument(snapshot.data);
         return ListTile(
           leading: CircleAvatar(
