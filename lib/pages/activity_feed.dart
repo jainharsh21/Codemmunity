@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codemmunity/pages/home.dart';
+import 'package:codemmunity/pages/post_screen.dart';
 import 'package:codemmunity/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -21,7 +22,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .getDocuments();
     List<ActivityFeedItem> feedItems = [];
 
-    snapshot.documents.forEach((doc){
+    snapshot.documents.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
     });
 
@@ -48,7 +49,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
               );
             }
             return ListView(
-              children : snapshot.data,
+              children: snapshot.data,
             );
           },
         ),
@@ -94,10 +95,22 @@ class ActivityFeedItem extends StatelessWidget {
     );
   }
 
-  configureMediaPreview() {
+  showPost(context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostScreen(
+          postId: postId,
+          userId: userId,
+        ),
+      ),
+    );
+  }
+
+  configureMediaPreview(context) {
     if (type == "like" || type == "comment") {
       mediaPreview = GestureDetector(
-        onTap: () => print("showing the post"),
+        onTap: () => showPost(context),
         child: Container(
           height: 50.0,
           width: 50.0,
@@ -131,13 +144,13 @@ class ActivityFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    configureMediaPreview();
+    configureMediaPreview(context);
     return Padding(
       padding: EdgeInsets.only(bottom: 2.0),
       child: Container(
         child: ListTile(
           title: GestureDetector(
-            onTap: ()=>print("show user's profile"),
+            onTap: () => print("show user's profile"),
             child: RichText(
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
@@ -151,7 +164,7 @@ class ActivityFeedItem extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
-                    text: ' $activityItemText', 
+                    text: ' $activityItemText',
                   ),
                 ],
               ),
@@ -165,7 +178,6 @@ class ActivityFeedItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Colors.white54,
-
             ),
           ),
           trailing: mediaPreview,

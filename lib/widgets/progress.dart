@@ -9,7 +9,7 @@ Container circularProgress() {
     padding: EdgeInsets.only(top:10.0),
     child: SpinKitThreeBounce(
       size: 30.0,
-      color: Colors.black,
+      color: Colors.blue,
     ),
     // child : CircularProgressIndicator(
     //   valueColor: AlwaysStoppedAnimation(Colors.deepPurple),
