@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codemmunity/models/user.dart';
 import 'package:codemmunity/pages/home.dart';
+import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -131,7 +132,7 @@ class UserResult extends StatelessWidget {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () => print("tapped"),
+            onTap: () => showProfile(context,profileId: user.id),
             child: ListTile(
               leading: CircleAvatar(
                 radius: 27.5,
@@ -158,3 +159,14 @@ class UserResult extends StatelessWidget {
     );
   }
 }
+
+showProfile(BuildContext context, {String profileId}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Profile(
+        profileId: profileId,
+      ),
+    ),
+  );
+} 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 AppBar header({bool isAppTitle = false,String titleText}) {
   return AppBar( 
-    automaticallyImplyLeading: false,
+    automaticallyImplyLeading: true,
     title: Text(
       isAppTitle ?  "Codemmunity" : titleText,
         style: TextStyle(

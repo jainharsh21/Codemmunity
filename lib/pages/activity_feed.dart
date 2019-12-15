@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/pages/post_screen.dart';
+import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -150,7 +151,7 @@ class ActivityFeedItem extends StatelessWidget {
       child: Container(
         child: ListTile(
           title: GestureDetector(
-            onTap: () => print("show user's profile"),
+            onTap: () => showProfile(context,profileId : userId),
             child: RichText(
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
@@ -185,4 +186,15 @@ class ActivityFeedItem extends StatelessWidget {
       ),
     );
   }
+}
+
+showProfile(BuildContext context, {String profileId}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Profile(
+        profileId: profileId,
+      ),
+    ),
+  );
 }

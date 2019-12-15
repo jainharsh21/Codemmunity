@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codemmunity/models/user.dart';
 import 'package:codemmunity/pages/comments.dart';
 import 'package:codemmunity/pages/home.dart';
+import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/widgets/custom_image.dart';
 import 'package:codemmunity/widgets/progress.dart';
 // import 'package:codemmunity/widgets/progress.dart';
@@ -100,7 +101,7 @@ class _PostState extends State<Post> {
             backgroundColor: Colors.grey,
           ),
           title: GestureDetector(
-            onTap: () => print("user profile displayed"),
+            onTap: () => showProfile(context,profileId : user.id),
             child: Text(
               user.username,
               style: TextStyle(
@@ -333,4 +334,15 @@ class _PostState extends State<Post> {
       );
     }));
   }
+}
+
+showProfile(BuildContext context, {String profileId}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Profile(
+        profileId: profileId,
+      ),
+    ),
+  );
 }
