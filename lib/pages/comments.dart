@@ -169,7 +169,7 @@ class Comment extends StatelessWidget {
           subtitle: Text(timeago.format(timestamp.toDate()),style: TextStyle(color: Colors.white),),
         ),
         Divider(
-          // color: Colors.white54,
+          // color: Colors.white54, 
         ),
       ],
     );
