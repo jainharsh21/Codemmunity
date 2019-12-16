@@ -6,6 +6,8 @@ import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+// first create a 'comment' model.
+
 class Comments extends StatefulWidget {
   final String postId;
   final String postOwnerId;
@@ -39,24 +41,30 @@ class CommentsState extends State<Comments> {
 
   buildComments() {
     return StreamBuilder(
+      // used a steam builder to update the comments in real-time.
       stream: commentsRef
           .document(postId)
           .collection('comments')
-          .orderBy("timestamp", descending: false)
+          // show the latest comments at the top.
+          .orderBy("timestamp", descending: true)
           .snapshots(),
       builder: (context, snapshot) {
+        // if the snapshot doesn't have any data yet,return progress indicator.
         if (!snapshot.hasData)
           return circularProgress();
+        // if the data is loaded then create a list and add each document from the snapshot to the list of comments.
         List<Comment> comments = [];
         snapshot.data.documents.forEach((doc){
           comments.add(Comment.fromDocument(doc));
         });
+        // return a list view containing the children as the list of comments.
         return ListView(
           children: comments,
         );
       },);
   }
 
+  //add all the properties of the comment to the firestore collection of 'comments'. 
   addComment() {
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
@@ -66,8 +74,10 @@ class CommentsState extends State<Comments> {
       "userId": currentUser.id,
     });
 
-    bool isNotPostOwner =  postOwnerId!=currentUser.id;
+    // check whether the current user is the post owner or not.
 
+    bool isNotPostOwner =  postOwnerId!=currentUser.id;
+    // if the current user is not the post owner then only show it's notification.  
     if(isNotPostOwner){
       activityFeedRef.document(postOwnerId).collection("feedItems").add({
         "type": "comment",
@@ -80,6 +90,7 @@ class CommentsState extends State<Comments> {
         "timestamp": DateTime.now(),
     });
     } 
+    // clear the text of the comment controller once the comment is submitted.
     commentController.clear(); 
   }
 
@@ -157,7 +168,9 @@ class Comment extends StatelessWidget {
           ),
           subtitle: Text(timeago.format(timestamp.toDate()),style: TextStyle(color: Colors.white),),
         ),
-        Divider(),
+        Divider(
+          // color: Colors.white54,
+        ),
       ],
     );
   }
