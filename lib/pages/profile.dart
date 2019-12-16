@@ -18,8 +18,10 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  bool isFollowing =false;
+  bool isFollowing = false;
   String postOrientation = "grid";
+  int followersCount = 0;
+  int followingCount = 0;
   final String currentUserId = currentUser?.id;
   bool isLoading = false;
   int postCount = 0;
@@ -27,7 +29,41 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    getProfilePosts();  
+    getProfilePosts();
+    getFollowersCount();
+    getFollowingCount();
+    checkIfFollowing();
+  }
+
+  checkIfFollowing() async {
+    DocumentSnapshot doc = await followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .get();
+    setState(() {
+      isFollowing = doc.exists;
+    });
+  }
+
+  getFollowersCount() async {
+    QuerySnapshot snapshot = await followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .getDocuments();
+    setState(() {
+      followersCount = snapshot.documents.length;
+    });
+  }
+
+  getFollowingCount() async {
+    QuerySnapshot snapshot = await followingRef
+        .document(widget.profileId)
+        .collection('userFollowing')
+        .getDocuments();
+    setState(() {
+      followingCount = snapshot.documents.length;
+    });
   }
 
   getProfilePosts() async {
@@ -84,7 +120,7 @@ class _ProfileState extends State<Profile> {
       child: FlatButton(
         onPressed: function,
         child: Container(
-          width: 235.0, 
+          width: 235.0,
           height: 27.0,
           child: Text(
             text,
@@ -114,13 +150,12 @@ class _ProfileState extends State<Profile> {
         text: "Edit Profile",
         function: editProfile,
       );
-    }else if(isFollowing){
+    } else if (isFollowing) {
       return buildButton(
         text: "Unfollow",
         function: handleUnfollowUser,
       );
-    }
-    else if(!isFollowing){
+    } else if (!isFollowing) {
       return buildButton(
         text: "Follow",
         function: handleFollowUser,
@@ -128,12 +163,74 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  handleUnfollowUser(){
-
+  handleUnfollowUser() {
+    setState(() {
+      isFollowing = false;
+    });
+    // remove follower.
+    followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // remove from following.
+    followingRef
+        .document(currentUserId)
+        .collection('userFollowing')
+        .document(widget.profileId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // delete the activity feed notification.
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItems')
+        .document(currentUserId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
   }
 
-  handleFollowUser(){
-    
+  handleFollowUser() {
+    setState(() {
+      isFollowing = true;
+    });
+    // make auth user follower of another user
+    followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .setData({});
+    // put that user to the current user's following collection.
+    followingRef
+        .document(currentUserId)
+        .collection('userFollowing')
+        .document(widget.profileId)
+        .setData({});
+    // adding a notification to the activity feed of the user that is followed by ther current user.
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItems')
+        .document(currentUserId)
+        .setData({
+      "type": "follow",
+      "ownerId": widget.profileId,
+      "username": currentUser.username,
+      "userId": currentUserId,
+      "userProfileImage": currentUser.photoUrl,
+      "timestamp": DateTime.now(),
+    });
   }
 
   buildProfileHeader() {
@@ -162,8 +259,8 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             buildCountColumn("Posts", postCount),
-                            buildCountColumn("Followers", 0),
-                            buildCountColumn("Following", 0),
+                            buildCountColumn("Followers", followersCount),
+                            buildCountColumn("Following", followingCount),
                           ],
                         ),
                         Row(
@@ -220,25 +317,25 @@ class _ProfileState extends State<Profile> {
   buildProfilePosts() {
     if (isLoading)
       return circularProgress();
-
-    else if(posts.isEmpty)
-    {
+    else if (posts.isEmpty) {
       return Container(
-      color: Colors.black,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SvgPicture.asset("assets/images/no_content.svg", height: 260.0),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-                child: Text("No Posts",
-                    style: TextStyle(color: Colors.white, fontSize: 30.0,fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-    }
-    else if (postOrientation == "grid") {
+        color: Colors.black,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SvgPicture.asset("assets/images/no_content.svg", height: 260.0),
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text("No Posts",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+    } else if (postOrientation == "grid") {
       List<GridTile> gridTiles = [];
       posts.forEach((post) {
         gridTiles.add(
