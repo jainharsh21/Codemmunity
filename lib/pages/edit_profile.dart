@@ -28,13 +28,19 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   getUser() async {
+    // first set the state to loading.
     setState(() {
       isLoading = true;
     });
+    // get the document snapshot from users Reference and store it in doc.
     DocumentSnapshot doc = await usersRef.document(widget.currentUserId).get();
+    // Deserialize the data from the snapshot and covert it into a user instance.
     user = User.fromDocument(doc);
+    // set the text of the display name field(controller) to the currentdisplay name.
     displayNameController.text = user.displayName;
+    // set the text of the bio field(controller) to the current bio.
     bioController.text = user.bio;
+    // since all the data is loaded, set the state again with isLoading to false.
     setState(() {
       isLoading = false;
     });
@@ -102,6 +108,7 @@ class _EditProfileState extends State<EditProfile> {
 
   updateProfileData() {
     setState(() {
+      // validate the data enetered by the user and set state according to it.
       displayNameController.text.trim().length < 3 ||
               displayNameController.text.isEmpty
           ? _displayNameValid = false
@@ -111,18 +118,24 @@ class _EditProfileState extends State<EditProfile> {
           : _bioValid = true;
     });
 
+    // if both the fields are validated,the update the data.
+
     if (_displayNameValid && _bioValid) {
       usersRef.document(widget.currentUserId).updateData({
         "displayName": displayNameController.text,
         "bio": bioController.text,
       });
+      // After successfully updating the data,show a snack bar on the screen.
       SnackBar snackbar = SnackBar(content: Text("Profile updated!"));
       _scaffoldKey.currentState.showSnackBar(snackbar);
     }
   }
 
+  // function to log out.
+
   logout() async{
     await googleSignIn.signOut();
+    // after logging out redirect the user to the home screen.
     Navigator.push(context, MaterialPageRoute(builder: (context)=>Home())); 
   }
 
