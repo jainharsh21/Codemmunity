@@ -4,7 +4,6 @@ import 'package:codemmunity/pages/activity_feed.dart';
 import 'package:codemmunity/pages/create_account.dart';
 import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/pages/search.dart';
-// import 'package:codemmunity/pages/timeline.dart';
 import 'package:codemmunity/pages/upload.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,6 +36,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    // set the page controller.
     pageController = PageController();
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignin(account);
@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
     googleSignIn.signOut();
   }
 
-// When the page is changed,update the pageIndex to the current page index.
+  // When the page is changed,update the pageIndex to the current page index.
   onPageChanged(int pageIndex) {
     setState(() {
       this.pageIndex = pageIndex;
@@ -77,8 +77,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-// function to handle the sign in.
+  // function to handle the sign in.
   handleSignin(GoogleSignInAccount account) {
+    // if the account is not null the create the user is firestore.
     if (account != null) {
       createUserInFirestore();
       // print('User signed in! : $account');

@@ -18,7 +18,9 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  // initialize the default isFollowing value to false.
   bool isFollowing = false;
+  // intialize the default post orientation to grid.
   String postOrientation = "grid";
   int followersCount = 0;
   int followingCount = 0;
@@ -35,49 +37,62 @@ class _ProfileState extends State<Profile> {
     checkIfFollowing();
   }
 
+  // to check if we are following a certain user.
   checkIfFollowing() async {
+    // if a document with our id exists in their followers collection then we are following that user.
+    // so we get document and see if it exists.
     DocumentSnapshot doc = await followersRef
         .document(widget.profileId)
         .collection('userFollowers')
         .document(currentUserId)
         .get();
     setState(() {
+      // depending whether the doc exists or not we set the value of isFollowing.
       isFollowing = doc.exists;
     });
   }
 
   getFollowersCount() async {
+    // get all the docuemnts from the user's followers collection.
     QuerySnapshot snapshot = await followersRef
         .document(widget.profileId)
         .collection('userFollowers')
         .getDocuments();
     setState(() {
+      // set the count to the length of the documents of the snapshot.
       followersCount = snapshot.documents.length;
     });
   }
 
   getFollowingCount() async {
+    // get all the docuemnts from the user's follwoing collection.
     QuerySnapshot snapshot = await followingRef
         .document(widget.profileId)
         .collection('userFollowing')
         .getDocuments();
     setState(() {
+      // set the count to the length of the documents of the snapshot.
       followingCount = snapshot.documents.length;
     });
   }
 
   getProfilePosts() async {
+    // set the state to loading state.
     setState(() {
       isLoading = true;
     });
+    // get all the posts from the post reference based on the profile id of the user in the order with the latest post first.
     QuerySnapshot snapshot = await postsRef
         .document(widget.profileId)
         .collection('userPosts')
         .orderBy('timestamp', descending: true)
         .getDocuments();
     setState(() {
+      // after getting the documents set the loading state to false.
       isLoading = false;
+      // get the count of the posts by the length of the documents of the snapshot.
       postCount = snapshot.documents.length;
+      // Deserialize each document and convert it into a user instance and store it in a list of posts.
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
     });
   }
@@ -150,12 +165,16 @@ class _ProfileState extends State<Profile> {
         text: "Edit Profile",
         function: editProfile,
       );
-    } else if (isFollowing) {
+    }
+    // if we are follwing that user show the unfollow button.
+    else if (isFollowing) {
       return buildButton(
         text: "Unfollow",
         function: handleUnfollowUser,
       );
-    } else if (!isFollowing) {
+    }
+    // if we aren't following that user then show the follow button. 
+    else if (!isFollowing) {
       return buildButton(
         text: "Follow",
         function: handleFollowUser,
@@ -163,11 +182,14 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  // to handle the unfollow function.
+
   handleUnfollowUser() {
+    // set the state with isFollwing to false as the user is unfollowing the other user.
     setState(() {
       isFollowing = false;
     });
-    // remove follower.
+    // if there is a document with our user id in their followers collection then remove it.(remove the follower)
     followersRef
         .document(widget.profileId)
         .collection('userFollowers')
@@ -178,7 +200,7 @@ class _ProfileState extends State<Profile> {
         doc.reference.delete();
       }
     });
-    // remove from following.
+    // if the user exists in our following collection then remove them.(remove from following)
     followingRef
         .document(currentUserId)
         .collection('userFollowing')
@@ -202,11 +224,14 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  // to handle the follow function.
+
   handleFollowUser() {
+    // set the state with isFollowing to true as the user is following the other user.
     setState(() {
       isFollowing = true;
     });
-    // make auth user follower of another user
+    // make auth user follower of another user(add a document with our document id to the follwoers collection of that user.)
     followersRef
         .document(widget.profileId)
         .collection('userFollowers')
@@ -235,9 +260,12 @@ class _ProfileState extends State<Profile> {
 
   buildProfileHeader() {
     return FutureBuilder(
+      // get the user by resolving the future.
       future: usersRef.document(widget.profileId).get(),
       builder: (context, snapshot) {
+        // if the snapshot hasn't loaded data yet,then show the progress indicator.
         if (!snapshot.hasData) return circularProgress();
+        // Deserialize ther data and convert the doc snapshot to a User instance.
         User user = User.fromDocument(snapshot.data);
         return Padding(
           padding: EdgeInsets.all(16.0),
@@ -315,8 +343,10 @@ class _ProfileState extends State<Profile> {
   }
 
   buildProfilePosts() {
+    // if it is in a loading state,then return the progress indicator.
     if (isLoading)
       return circularProgress();
+    // if there are no posts then show the no content photo.
     else if (posts.isEmpty) {
       return Container(
         color: Colors.black,
@@ -335,7 +365,9 @@ class _ProfileState extends State<Profile> {
           ],
         ),
       );
-    } else if (postOrientation == "grid") {
+    }
+    // if there are posts and the orientaion is set to grid then show the posts in a grid view.
+    else if (postOrientation == "grid") {
       List<GridTile> gridTiles = [];
       posts.forEach((post) {
         gridTiles.add(
@@ -353,7 +385,9 @@ class _ProfileState extends State<Profile> {
         physics: NeverScrollableScrollPhysics(),
         children: gridTiles,
       );
-    } else if (postOrientation == "list") {
+    }
+    // if the post orientation is set to list then show the posts by a list view.
+    else if (postOrientation == "list") {
       return Column(
         children: posts,
       );
@@ -366,6 +400,8 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  // to toggle between grid view and list view.
+
   buildTogglePostOrientation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -374,6 +410,7 @@ class _ProfileState extends State<Profile> {
           onPressed: () => setPostOrientation("grid"),
           icon: Icon(
             Icons.grid_on,
+            // if the post orientation is grid then change it's color to orange.
             color: postOrientation == "grid" ? Colors.orange : Colors.blueGrey,
             size: 25.0,
           ),
@@ -382,6 +419,7 @@ class _ProfileState extends State<Profile> {
           onPressed: () => setPostOrientation("list"),
           icon: Icon(
             Icons.list,
+            // if the post orientation is list then change it's color to orange.
             color: postOrientation == "list" ? Colors.orange : Colors.blueGrey,
             size: 35.0,
           ),

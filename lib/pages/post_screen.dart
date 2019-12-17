@@ -17,10 +17,13 @@ class PostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
+      // get the post by resolving the future.
       future: postsRef.document(userId).collection('userPosts').document(postId).get(),
       builder: (context,snapshot){
+      // if the snapshot received from resolving the future doesn't have data yet , show the progress indicator.
         if(!snapshot.hasData)
           return circularProgress();
+      // Deserialize the snapshot and create a Post instance.
         Post post = Post.fromDocument(snapshot.data);
         return Center(
           child: Scaffold(

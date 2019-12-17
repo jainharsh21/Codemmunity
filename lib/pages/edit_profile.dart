@@ -113,7 +113,7 @@ class _EditProfileState extends State<EditProfile> {
               displayNameController.text.isEmpty
           ? _displayNameValid = false
           : _displayNameValid = true;
-      bioController.text.trim().length > 200 
+      bioController.text.trim().length > 200
           ? _bioValid = false
           : _bioValid = true;
     });
@@ -133,10 +133,10 @@ class _EditProfileState extends State<EditProfile> {
 
   // function to log out.
 
-  logout() async{
+  logout() async {
     await googleSignIn.signOut();
     // after logging out redirect the user to the home screen.
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>Home())); 
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
 
   @override

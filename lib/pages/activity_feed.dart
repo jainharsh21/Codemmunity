@@ -14,7 +14,6 @@ class ActivityFeed extends StatefulWidget {
 }
 
 class _ActivityFeedState extends State<ActivityFeed> {
-
   // get the activity feed items and store it in a list of ActivityFeedItem.
 
   getActivityFeed() async {
@@ -59,7 +58,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   }
 }
 
-// A widget that contains the preview of the image of the post regarding to which the notification is in the Activity feed. 
+// A widget that contains the preview of the image of the post regarding to which the notification is in the Activity feed.
 Widget mediaPreview;
 // Based on the type of the notification we set a string related to that type. (ex : "started following you.")
 String activityItemText;
@@ -100,7 +99,6 @@ class ActivityFeedItem extends StatelessWidget {
     );
   }
 
-
   // method to show the full post based on the post id and user id linked to the post.
   showPost(context) {
     Navigator.push(
@@ -139,7 +137,7 @@ class ActivityFeedItem extends StatelessWidget {
         ),
       );
     }
-    // if the type isn't like or comment (ex : follow) then just set the preview to an empty text. 
+    // if the type isn't like or comment (ex : follow) then just set the preview to an empty text.
     else {
       mediaPreview = Text("");
     }
@@ -166,7 +164,7 @@ class ActivityFeedItem extends StatelessWidget {
         child: ListTile(
           title: GestureDetector(
             // show the user's profile when a user taps on the username of another or his own username.
-            onTap: () => showProfile(context,profileId : userId),
+            onTap: () => showProfile(context, profileId: userId),
             // rich text allows us to give style of based on text span.
             child: RichText(
               overflow: TextOverflow.ellipsis,
@@ -203,6 +201,7 @@ class ActivityFeedItem extends StatelessWidget {
     );
   }
 }
+
 // method to show the profile of the user.
 showProfile(BuildContext context, {String profileId}) {
   Navigator.push(

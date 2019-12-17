@@ -50,21 +50,21 @@ class CommentsState extends State<Comments> {
           .snapshots(),
       builder: (context, snapshot) {
         // if the snapshot doesn't have any data yet,return progress indicator.
-        if (!snapshot.hasData)
-          return circularProgress();
+        if (!snapshot.hasData) return circularProgress();
         // if the data is loaded then create a list and add each document from the snapshot to the list of comments.
         List<Comment> comments = [];
-        snapshot.data.documents.forEach((doc){
+        snapshot.data.documents.forEach((doc) {
           comments.add(Comment.fromDocument(doc));
         });
         // return a list view containing the children as the list of comments.
         return ListView(
           children: comments,
         );
-      },);
+      },
+    );
   }
 
-  //add all the properties of the comment to the firestore collection of 'comments'. 
+  //add all the properties of the comment to the firestore collection of 'comments'.
   addComment() {
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
@@ -76,22 +76,22 @@ class CommentsState extends State<Comments> {
 
     // check whether the current user is the post owner or not.
 
-    bool isNotPostOwner =  postOwnerId!=currentUser.id;
-    // if the current user is not the post owner then only show it's notification.  
-    if(isNotPostOwner){
+    bool isNotPostOwner = postOwnerId != currentUser.id;
+    // if the current user is not the post owner then only show it's notification.
+    if (isNotPostOwner) {
       activityFeedRef.document(postOwnerId).collection("feedItems").add({
         "type": "comment",
-        "commentData" : commentController.text,
+        "commentData": commentController.text,
         "username": currentUser.username,
         "userId": currentUser.id,
         "userProfileImage": currentUser.photoUrl,
         "postId": postId,
         "mediaUrl": postMediaUrl,
         "timestamp": DateTime.now(),
-    });
-    } 
+      });
+    }
     // clear the text of the comment controller once the comment is submitted.
-    commentController.clear(); 
+    commentController.clear();
   }
 
   @override
@@ -160,17 +160,20 @@ class Comment extends StatelessWidget {
       children: <Widget>[
         ListTile(
           title: Text(
-              comment,
-              style: TextStyle(color: Colors.white),
-            ),
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(avatarUrl), 
+            comment,
+            style: TextStyle(color: Colors.white),
           ),
-          subtitle: Text(timeago.format(timestamp.toDate()),style: TextStyle(color: Colors.white),),
+          leading: CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(avatarUrl),
+          ),
+          subtitle: Text(
+            timeago.format(timestamp.toDate()),
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         Divider(
-          // color: Colors.white54, 
-        ),
+            // color: Colors.white54,
+            ),
       ],
     );
   }
