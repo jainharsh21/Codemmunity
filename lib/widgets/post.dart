@@ -95,13 +95,14 @@ class _PostState extends State<Post> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return circularProgress();
         User user = User.fromDocument(snapshot.data);
+        bool isPostOwner = currentUserId == ownerId;
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
             backgroundColor: Colors.grey,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context,profileId : user.id),
+            onTap: () => showProfile(context, profileId: user.id),
             child: Text(
               user.username,
               style: TextStyle(
@@ -116,16 +117,92 @@ class _PostState extends State<Post> {
               color: Colors.white,
             ),
           ),
-          trailing: IconButton(
-            onPressed: () => print("delete post"),
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-            ),
-          ),
+          trailing: isPostOwner
+              ? IconButton(
+                  onPressed: () => handleDeletePost(context),
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(''),
         );
       },
     );
+  }
+
+  handleDeletePost(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            backgroundColor: Colors.black,
+            title: Text(
+              "Do you want to delete this post?",
+              style: TextStyle(color: Colors.white),
+            ),
+            children: <Widget>[
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                  deletePost();
+                },
+                child: Text(
+                  "Delete",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  deletePost() async {
+    postsRef
+        .document(ownerId)
+        .collection('userPosts')
+        .document(postId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+
+    // delete the uploaded image from firestore
+    storageRef.child("post_$postId.jpg").delete();
+    // then delete the activity feed notifications related to the posts.
+    QuerySnapshot activityFeedSnapshot = await activityFeedRef
+        .document(ownerId)
+        .collection('feedItems')
+        .where('postId', isEqualTo: postId)
+        .getDocuments();
+
+    activityFeedSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+
+    // delete all the comments.
+
+    QuerySnapshot commentsSnapshot = await commentsRef
+        .document(postId)
+        .collection('comments')
+        .getDocuments();
+
+    commentsSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
   }
 
   handleLikePost() {
@@ -202,7 +279,7 @@ class _PostState extends State<Post> {
           .then((doc) {
         if (doc.exists) {
           doc.reference.delete();
-        } 
+        }
       });
     }
   }
