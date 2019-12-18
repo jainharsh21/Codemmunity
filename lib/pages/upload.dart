@@ -52,22 +52,44 @@ class _UploadState extends State<Upload> {
         context: parentContext,
         builder: (context) {
           return SimpleDialog(
-            elevation: 25.0,
+            backgroundColor: Colors.black,
+            elevation: 45.0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            title: Text("Create Post"),
+            title: Text(
+              "Create Post",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             children: <Widget>[
               SimpleDialogOption(
-                child: Text("Photo With Camera"),
+                child: Text(
+                  "Photo With Camera",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
                 onPressed: handleTakePhoto,
               ),
               SimpleDialogOption(
-                child: Text("Image From Gallery"),
+                child: Text(
+                  "Image From Gallery",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
                 onPressed: handleImageFromGallery,
               ),
               SimpleDialogOption(
-                child: Text("Cancel"),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ],
