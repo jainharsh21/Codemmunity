@@ -4,6 +4,7 @@ import 'package:codemmunity/pages/activity_feed.dart';
 import 'package:codemmunity/pages/create_account.dart';
 import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/pages/search.dart';
+import 'package:codemmunity/pages/timeline.dart';
 import 'package:codemmunity/pages/upload.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ final commentsRef = Firestore.instance.collection('comments');
 final activityFeedRef = Firestore.instance.collection('feed');
 final followersRef = Firestore.instance.collection('followers');
 final followingRef = Firestore.instance.collection('following');
+final timelineRef = Firestore.instance.collection('timeline');
 final DateTime timestamp = DateTime.now();
 User currentUser;
 final StorageReference storageRef = FirebaseStorage.instance.ref();
@@ -133,11 +135,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: PageView(
         children: <Widget>[
-          // Timeline(),
-          RaisedButton(
-            child: Text("Log out"),
-            onPressed: logout,
-          ),
+          Timeline(currentUser : currentUser),
           ActivityFeed(),
           Upload(currentUser : currentUser),
           Search(),
