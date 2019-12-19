@@ -115,6 +115,15 @@ class _HomeState extends State<Home> {
         "bio": "",
         "timestamp": timestamp,
       });
+
+      // To make the new user follow themselves so that they can see their own posts.
+
+      await followersRef
+        .document(user.id)
+        .collection('userFollowers')
+        .document(user.id)
+        .setData({});
+
       // Update the doc variable after getting the newly added data.
       doc = await usersRef.document(user.id).get();
     }
