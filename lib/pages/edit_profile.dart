@@ -136,7 +136,10 @@ class _EditProfileState extends State<EditProfile> {
   logout() async {
     await googleSignIn.signOut();
     // after logging out redirect the user to the home screen.
-    Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    // Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Home()),
+        (Route<dynamic> route) => false);
   }
 
   @override

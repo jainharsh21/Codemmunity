@@ -375,6 +375,8 @@ class _PostState extends State<Post> {
             ),
           ],
         ),
+        // Padding(padding: EdgeInsets.only(top: 12.0),),
+        Divider(),
         // Row(
         //   crossAxisAlignment: CrossAxisAlignment.start,
         //   children: <Widget>[
