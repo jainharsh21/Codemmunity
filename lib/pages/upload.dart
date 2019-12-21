@@ -19,7 +19,7 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload> {
+class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Upload>{
   TextEditingController locationContoller = TextEditingController();
   TextEditingController captionController = TextEditingController();
   File file;
@@ -328,29 +328,11 @@ class _UploadState extends State<Upload> {
     );
   }
 
-  // getUserLocation() async {
-  //   print("taooed");
-  //   Position position = await Geolocator()
-  //       .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  //   List<Placemark> placemarks = await Geolocator()
-  //       .placemarkFromCoordinates(position.latitude, position.longitude);
-  //   Placemark placemark = placemarks[0];
-  //   String completeAddress =
-  //       '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
-  //   print(completeAddress);
-  //   String formattedAddress = "${placemark.locality}, ${placemark.country}";
-  //   print(formattedAddress);
-  //   locationContoller.text = formattedAddress;
-  // }
-
-  // Scaffold buildUploadForm(){
-  //   return Scaffold(
-  //     body: Image.file(file),
-  //   );
-  // }
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return file == null ? uploadScreen() : buildUploadForm();
   }
 }
