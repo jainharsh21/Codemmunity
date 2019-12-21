@@ -80,10 +80,10 @@ class _HomeState extends State<Home> {
   }
 
   // function to handle the sign in.
-  handleSignin(GoogleSignInAccount account) {
+  handleSignin(GoogleSignInAccount account) async{
     // if the account is not null the create the user is firestore.
     if (account != null) {
-      createUserInFirestore();
+      await createUserInFirestore();
       // print('User signed in! : $account');
       setState(() {
         isAuth = true;
