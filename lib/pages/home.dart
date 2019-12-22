@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:codemmunity/models/user.dart';
 import 'package:codemmunity/pages/activity_feed.dart';
@@ -6,6 +8,7 @@ import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/pages/search.dart';
 import 'package:codemmunity/pages/timeline.dart';
 import 'package:codemmunity/pages/upload.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +32,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   // initializing the isAuth to false as by default the user would not be authenticated.
   bool isAuth = false;
   // pagecontroller to naviagte between the pages on the nav bar.
@@ -80,7 +86,7 @@ class _HomeState extends State<Home> {
   }
 
   // function to handle the sign in.
-  handleSignin(GoogleSignInAccount account) async{
+  handleSignin(GoogleSignInAccount account) async {
     // if the account is not null the create the user is firestore.
     if (account != null) {
       await createUserInFirestore();
@@ -88,11 +94,58 @@ class _HomeState extends State<Home> {
       setState(() {
         isAuth = true;
       });
+      configurePushNotifications();
     } else {
       setState(() {
         isAuth = false;
       });
     }
+  }
+
+  configurePushNotifications() {
+    final GoogleSignInAccount user = googleSignIn.currentUser;
+    if (Platform.isIOS) getiOSPermission();
+
+    _firebaseMessaging.getToken().then((token) {
+      print("Firebase Messaging Token : $token");
+      usersRef
+          .document(user.id)
+          .updateData({"androidNotificationToken": token});
+    });
+
+    _firebaseMessaging.configure(
+      // onLaunch: (Map<String,dynamic> message) async{},
+      // onResume: (Map<String,dynamic> message) async{},
+      onMessage: (Map<String, dynamic> message) async {
+        print("on message : $message");
+        final String recipientId = message['data']['recipient'];
+        final String body = message['notification']['body'];
+        if (recipientId == user.id) {
+          print("notificaton displayed");
+          SnackBar snackBar = SnackBar(
+            content: Text(
+              body,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+          _scaffoldKey.currentState.showSnackBar(snackBar);
+        }
+        else{
+          print("notification not shown");
+        }
+      },
+    );
+  }
+
+  getiOSPermission() {
+    _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings(
+      alert: true,
+      badge: true,
+      sound: true,
+    ));
+    _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
+      print("settings registered: $settings");
+    });
   }
 
   createUserInFirestore() async {
@@ -119,10 +172,10 @@ class _HomeState extends State<Home> {
       // To make the new user follow themselves so that they can see their own posts.
 
       await followersRef
-        .document(user.id)
-        .collection('userFollowers')
-        .document(user.id)
-        .setData({});
+          .document(user.id)
+          .collection('userFollowers')
+          .document(user.id)
+          .setData({});
 
       // Update the doc variable after getting the newly added data.
       doc = await usersRef.document(user.id).get();
@@ -142,13 +195,14 @@ class _HomeState extends State<Home> {
 
   Scaffold buildAuthScreen() {
     return Scaffold(
+      key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          Timeline(currentUser : currentUser),
+          Timeline(currentUser: currentUser),
           ActivityFeed(),
-          Upload(currentUser : currentUser),
+          Upload(currentUser: currentUser),
           Search(),
-          Profile(profileId:currentUser?.id),
+          Profile(profileId: currentUser?.id),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
