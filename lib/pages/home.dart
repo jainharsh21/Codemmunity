@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignin(account);
     }, onError: (err) {
-      print('Error signing in : $err');
+      // print('Error signing in : $err');
     });
 
     // If the user is already signed in,redirect him to the main page instead of the sign-in page.
@@ -107,7 +107,7 @@ class _HomeState extends State<Home> {
     if (Platform.isIOS) getiOSPermission();
 
     _firebaseMessaging.getToken().then((token) {
-      print("Firebase Messaging Token : $token");
+      // print("Firebase Messaging Token : $token");
       usersRef
           .document(user.id)
           .updateData({"androidNotificationToken": token});
@@ -117,11 +117,11 @@ class _HomeState extends State<Home> {
       // onLaunch: (Map<String,dynamic> message) async{},
       // onResume: (Map<String,dynamic> message) async{},
       onMessage: (Map<String, dynamic> message) async {
-        print("on message : $message");
+        // print("on message : $message");
         final String recipientId = message['data']['recipient'];
         final String body = message['notification']['body'];
         if (recipientId == user.id) {
-          print("notificaton displayed");
+          // print("notificaton displayed");
           SnackBar snackBar = SnackBar(
             content: Text(
               body,
@@ -131,7 +131,7 @@ class _HomeState extends State<Home> {
           _scaffoldKey.currentState.showSnackBar(snackBar);
         }
         else{
-          print("notification not shown");
+          // print("notification not shown");
         }
       },
     );
@@ -144,7 +144,7 @@ class _HomeState extends State<Home> {
       sound: true,
     ));
     _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
-      print("settings registered: $settings");
+      // print("settings registered: $settings");
     });
   }
 
@@ -183,8 +183,8 @@ class _HomeState extends State<Home> {
 
     // Convert the document into a User instance.
     currentUser = User.fromDocument(doc);
-    print(currentUser);
-    print(currentUser.username);
+    // print(currentUser);
+    // print(currentUser.username);
   }
 
   @override
