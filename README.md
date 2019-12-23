@@ -53,8 +53,15 @@
 
 ### Profile(Other User's Profile).
 
+![otherUserProfile](https://user-images.githubusercontent.com/44740658/71357383-8dfc9f00-25ab-11ea-982b-811b77a86882.jpeg)
+
 ### Edit Profile / Logout.
 
 ![editProfilePage](https://user-images.githubusercontent.com/44740658/71356555-9a332d00-25a8-11ea-9cf8-ded09fa22261.jpeg)
+
+### Notifications
+
+![notification](https://user-images.githubusercontent.com/44740658/71357384-8dfc9f00-25ab-11ea-8493-3ed6f0a7f650.jpeg)
+
 
 
