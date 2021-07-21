@@ -7,7 +7,7 @@ import 'package:codemmunity/widgets/post.dart';
 import 'package:codemmunity/widgets/post_tile.dart';
 import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 import 'home.dart';
 
 class Profile extends StatefulWidget {
@@ -353,7 +353,7 @@ class _ProfileState extends State<Profile> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SvgPicture.asset("assets/images/no_content.svg", height: 260.0),
+            // SvgPicture.asset("assets/images/no_content.svg", height: 260.0),
             Padding(
               padding: EdgeInsets.only(top: 20.0),
               child: Text("No Posts",

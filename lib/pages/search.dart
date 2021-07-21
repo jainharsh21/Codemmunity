@@ -5,7 +5,7 @@ import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/pages/profile.dart';
 import 'package:codemmunity/widgets/progress.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -60,19 +60,19 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
 
   Container buildNoContent() {
     // Make the screen responisve with rotation.
-    final Orientation orientation = MediaQuery.of(context).orientation;
+    // final Orientation orientation = MediaQuery.of(context).orientation;
     return Container(
       child: Center(
         child: ListView(
           shrinkWrap: true,
           children: <Widget>[
-            SvgPicture.asset(
-              'assets/images/search.svg', 
-              height: orientation == Orientation.portrait ? 300.0 : 200.0,
-              placeholderBuilder: (BuildContext context){
-                return circularProgress();
-              }
-            ),
+            // SvgPicture.asset(
+            //   'assets/images/search.svg', 
+            //   height: orientation == Orientation.portrait ? 300.0 : 200.0,
+            //   placeholderBuilder: (BuildContext context){
+            //     return circularProgress();
+            //   }
+            // ),
             Text(
               "Find Users",
               textAlign: TextAlign.center,

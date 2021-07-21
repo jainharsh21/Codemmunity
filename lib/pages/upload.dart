@@ -5,7 +5,7 @@ import 'package:codemmunity/pages/home.dart';
 import 'package:codemmunity/widgets/progress.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
@@ -103,10 +103,10 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SvgPicture.asset("assets/images/upload.svg", height: 260.0,
-              placeholderBuilder: (BuildContext context) {
-            return circularProgress();
-          }),
+          // SvgPicture.asset("assets/images/upload.svg", height: 260.0,
+          //     placeholderBuilder: (BuildContext context) {
+          //   return circularProgress();
+          // }),
           Padding(
             padding: EdgeInsets.only(top: 20.0),
             child: RaisedButton(
